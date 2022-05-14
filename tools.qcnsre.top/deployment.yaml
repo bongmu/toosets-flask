@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flaskapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flaskapp
+  template:
+    metadata:
+      labels:
+        app: flaskapp
+    spec:
+      containers:
+      - name: flaskapp
+        image: flaskapp:latest
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080
+          name: flaskapp
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flaskapp-svc
+spec:
+  type: NodePort
+  selector:
+    app: flaskapp
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: flaskapp-ingress
+spec:
+  rules:
+  - host: tools.qcnsre.top
+    http:
+      paths:
+      - path:
+        backend:
+          serviceName: flaskapp-svc
+          servicePort: 8080
